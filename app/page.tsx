@@ -67,9 +67,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen">
-      <div className="w-1/3 p-4 bg-gray-100 overflow-y-auto">
-        <h1 className="text-2xl font-bold mb-4">Trip Planner</h1>
-
+      <div className="w-[380px] fixed z-10 left-0 p-4  overflow-y-auto">
         <TripList
           trips={trips}
           onTripClick={handleTripClick}
@@ -77,7 +75,7 @@ export default function Home() {
           onDeleteTrip={deleteTrip}
         />
       </div>
-      <div className="w-2/3">
+      <div className="w-full">
         <MapComponent
           setMapInstance={setMap}
           trips={trips}
