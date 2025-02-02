@@ -30,7 +30,9 @@ export default function TripForm({
   const [description, setDescription] = useState(
     initialTrip?.description || ""
   );
-
+  const [date, setDate] = useState<Date | undefined>(
+    initialTrip?.date ? new Date(initialTrip.date) : undefined
+  );
   const [location, setLocation] = useState(initialTrip?.location || "");
   const [content, setContent] = useState(initialTrip?.content || "");
   const [gallery, setGallery] = useState<string[]>(initialTrip?.gallery || []);
@@ -40,13 +42,14 @@ export default function TripForm({
     if (initialTrip) {
       setTitle(initialTrip.title);
       setDescription(initialTrip.description);
+      setDate(initialTrip.date ? new Date(initialTrip.date) : undefined);
       setLocation(initialTrip.location);
       setContent(initialTrip.content);
       setGallery(initialTrip.gallery);
     } else {
       setTitle("");
       setDescription("");
-
+      setDate(undefined);
       setLocation("");
       setContent("");
       setGallery([]);
@@ -62,8 +65,8 @@ export default function TripForm({
   }, [selectedLocation]);
 
   useEffect(() => {
-    setIsFormValid(!!title && !!description && !!location);
-  }, [title, description, location]);
+    setIsFormValid(!!title && !!description && !!date && !!location);
+  }, [title, description, date, location]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +75,7 @@ export default function TripForm({
         id: initialTrip?.id || Date.now().toString(),
         title,
         description,
+        date: date!.toISOString(),
         location,
         content,
         gallery,
@@ -82,6 +86,7 @@ export default function TripForm({
       // Reset form fields after submission
       setTitle("");
       setDescription("");
+      setDate(undefined);
       setLocation("");
       setContent("");
       setGallery([]);
@@ -122,7 +127,7 @@ export default function TripForm({
           required
         />
       </div>
-      {/* <div className="space-y-2">
+      <div className="space-y-2">
         <Label>Date</Label>
         <Popover>
           <PopoverTrigger asChild>
@@ -146,7 +151,7 @@ export default function TripForm({
             />
           </PopoverContent>
         </Popover>
-      </div> */}
+      </div>
       <div className="space-y-2">
         <Label htmlFor="location">Location</Label>
         <Input

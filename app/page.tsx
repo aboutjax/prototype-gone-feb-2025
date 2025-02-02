@@ -22,17 +22,6 @@ export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
 
-  const handlePanToZero = () => {
-    if (map) {
-      map.flyTo({
-        center: [0, 0], // Move to (0,0)
-        zoom: 3, // Adjust zoom level
-        speed: 1, // Transition speed
-        essential: true, // Ensures animation
-      });
-    }
-  };
-
   const addTrip = (trip: Trip) => {
     setTrips((prevTrips) => [
       ...prevTrips,

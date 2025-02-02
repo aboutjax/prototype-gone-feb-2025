@@ -21,9 +21,16 @@ export default function TripList({
   onEditTrip,
   onDeleteTrip,
 }: TripListProps) {
+  // Sort trips by date in descending order (newest first)
+  const sortedTrips = [...trips].sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
+
   return (
     <div className="space-y-4">
-      {trips.map((trip) => (
+      {sortedTrips.map((trip) => (
         <div key={trip.id} className="bg-white p-4 rounded shadow">
           <div className="flex items-center justify-between mb-2">
             <h3
@@ -49,6 +56,9 @@ export default function TripList({
             </DropdownMenu>
           </div>
           <p className="text-sm text-gray-600 mb-2">{trip.description}</p>
+          <p className="text-sm text-gray-500 mb-1">
+            📅 {new Date(trip.date).toLocaleDateString()}
+          </p>
           <p className="text-sm text-gray-500 mb-2">📍 {trip.location}</p>
           {trip.gallery.length > 0 && (
             <div className="flex space-x-2 overflow-x-auto">

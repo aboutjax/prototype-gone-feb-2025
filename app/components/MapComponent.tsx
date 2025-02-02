@@ -9,6 +9,7 @@ export interface Trip {
   content: string;
   location: string;
   gallery: string[];
+  date: string;
   lng: number; // changed from longitude
   lat: number; // changed from latitude
 }
