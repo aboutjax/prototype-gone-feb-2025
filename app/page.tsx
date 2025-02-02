@@ -12,6 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import TripForm from "./components/TripForm";
 import TripList from "./components/TripList";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [map, setMap] = useState<mapboxgl.Map | null>(null);

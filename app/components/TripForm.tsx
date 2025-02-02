@@ -1,19 +1,12 @@
-import type React from "react";
-import { useState, useEffect } from "react";
+"use client";
+
+import type { Trip } from "@/app/components/MapComponent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { Trip } from "@/app/components/MapComponent";
+import { Textarea } from "@/components/ui/textarea";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface TripFormProps {
   onSubmit: (trip: Trip) => void;
@@ -104,6 +97,11 @@ export default function TripForm({
     }
   };
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value ? new Date(e.target.value) : undefined;
+    setDate(newDate);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -128,29 +126,14 @@ export default function TripForm({
         />
       </div>
       <div className="space-y-2">
-        <Label>Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+        <Label htmlFor="date">Date</Label>
+        <Input
+          id="date"
+          type="date"
+          value={date ? date.toISOString().split("T")[0] : ""}
+          onChange={handleDateChange}
+          required
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="location">Location</Label>

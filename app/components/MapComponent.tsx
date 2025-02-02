@@ -68,7 +68,7 @@ function MapComponent({
       const el = document.createElement("div");
       el.className = "marker";
       el.innerHTML = "📍";
-      el.style.fontSize = "24px";
+      el.style.fontSize = "56px";
       el.style.cursor = "pointer";
 
       const popupContent = `
