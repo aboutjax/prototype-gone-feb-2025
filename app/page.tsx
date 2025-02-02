@@ -1,101 +1,116 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { MapComponent } from "@/app/components/MapComponent";
+import type { Trip } from "@/app/components/MapComponent";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import TripForm from "./components/TripForm";
+import TripList from "./components/TripList";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [map, setMap] = useState<mapboxgl.Map | null>(null);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<
+    [number, number] | null
+  >(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+  const handlePanToZero = () => {
+    if (map) {
+      map.flyTo({
+        center: [0, 0], // Move to (0,0)
+        zoom: 3, // Adjust zoom level
+        speed: 1, // Transition speed
+        essential: true, // Ensures animation
+      });
+    }
+  };
+
+  const addTrip = (trip: Trip) => {
+    setTrips((prevTrips) => [
+      ...prevTrips,
+      { ...trip, id: Date.now().toString() },
+    ]);
+    setSelectedLocation(null);
+    setIsDialogOpen(false);
+    setEditingTrip(null); // Add this line to reset editingTrip
+  };
+
+  const updateTrip = (updatedTrip: Trip) => {
+    setTrips((prevTrips) =>
+      prevTrips.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip))
+    );
+    setEditingTrip(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleMapClick = (latlng: [number, number]) => {
+    setSelectedLocation(latlng);
+    setEditingTrip(null);
+    setIsDialogOpen(true);
+  };
+  const handleTripClick = (trip: Trip) => {
+    if (map) {
+      map.flyTo({
+        center: [trip.lng, trip.lat],
+        zoom: 12,
+        speed: 1,
+        essential: true,
+      });
+    }
+  };
+
+  const handleEditTrip = (trip: Trip) => {
+    setEditingTrip(trip);
+    setIsDialogOpen(true);
+  };
+
+  const deleteTrip = (id: string) => {
+    setTrips((prevTrips) => prevTrips.filter((trip) => trip.id !== id));
+  };
+
+  return (
+    <div className="flex h-screen">
+      <div className="w-1/3 p-4 bg-gray-100 overflow-y-auto">
+        <h1 className="text-2xl font-bold mb-4">Trip Planner</h1>
+
+        <TripList
+          trips={trips}
+          onTripClick={handleTripClick}
+          onEditTrip={handleEditTrip}
+          onDeleteTrip={deleteTrip}
+        />
+      </div>
+      <div className="w-2/3">
+        <MapComponent
+          setMapInstance={setMap}
+          trips={trips}
+          onMapClick={handleMapClick}
+          onTripClick={handleTripClick}
+        />
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingTrip ? "Edit Trip" : "Add a New Trip"}
+            </DialogTitle>
+          </DialogHeader>
+          <TripForm
+            onSubmit={editingTrip ? updateTrip : addTrip}
+            initialTrip={editingTrip}
+            selectedLocation={selectedLocation}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,0 +1,12 @@
+.emoji-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+}
+
+.emoji-icon > div {
+  font-size: inherit;
+  line-height: 1;
+}
